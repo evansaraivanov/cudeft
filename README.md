@@ -1,20 +1,23 @@
 # cudeft
 CUDA implementation of the EFT of large scale structure.
 
-This requires conda, an Nvidia GPU and a slightly modified version of the m-CUBES integration package, which will be made available soon.
+This requires conda and an Nvidia GPU.
+
+I have provided in the externals folders a slightly modified version of m-CUBES (Fermi-Lab BSD License) (see arXiv:2202.01753 for all the hard work!) that allows for parallel integrations over $k$-modes should your GPU have enough SM cores to launch them.
 
 ## Download and Install
 
 To download and install cudeft, run the following commands:
-
 ```
 git clone git@github.com:evansaraivanov/cudeft.git
 cd cudeft
 conda create -n (your env name) --file cudeft_env.yaml
+mkdir build
 cd build
 cmake ..
 make
 cd ../
 ```
+cmake should get your CUDA archecture correct.
 
 The integrals can be evaluated from python, allowing one to easily make code to read or create linear power spectra however they like and pass it to the code. See example.py for an example with $P_L(k) = k^{-n}$ and enjoy the speed!

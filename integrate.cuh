@@ -1,0 +1,23 @@
+#pragma once
+
+#include "spt.cuh"
+
+// struct holding static integration data (e.g P_linear, SPT permutations, etc.)
+struct int_data{
+  double* logk;
+  double* logp0;
+  double* slopes;
+  spt_data* kernel_data;
+  double logk_eval;
+  double cutoff;
+  double dk;
+  int length;
+};
+
+// Integration routines --------------------------------------------------------
+
+__host__ double integrate_1loop(int_data* idata, double epsrel, double epsabs,
+  double ncall, cudaStream_t stream=0, bool print_result=false, int max_iter=2000, int skip=5);
+
+__host__ double integrate_2loop(int_data* idata, double epsrel, double epsabs,
+  double ncall, cudaStream_t stream=0, bool print_result=false, int max_iter=2000, int skip=5);

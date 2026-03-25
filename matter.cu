@@ -14,7 +14,6 @@
 --------------------------------------------------------------------------------
     1-Loop  ------------------------------------------------------------------*/
 
-
 __host__ __device__ double integrand_1loop(
   double integration_vars[], 
   size_t dim, 
@@ -76,12 +75,6 @@ __host__ __device__ double integrand_1loop(
   }
 
 	double2 K3 = spt_kernels_cuda(3, Q3, idxs3, data->kernel_data);
-
-  // printf("-----------------------------------------\n");
-  // printf("k = %f, q=%f, theta=%f\n",k, q, qtheta1);
-  // printf("_k = %f, P_q = %f, P_kpq = %f, P_kmq = %f\n",  P_k, P_q, P_kmq, P_kpq);
-  // printf("F2_1 = %f, F2_2 = %f, F3 = %f\n", K2_1.x, K2_2.x, K3.x);
-  // printf("-----------------------------------------\n");
 
 	return fourier_factor*jac*
     (   2.0*K2_1.x * K2_1.x * P_q * P_kmq
@@ -177,12 +170,6 @@ __host__ __device__ double integrand_2loop(
 
     //--------------------------------------------------------------------------
     if (kmq1 - q1 > 0) {
-      // double Q4[12] = {
-      //    q1x,    0,   q1z,
-      //   -q1x,    0, k-q1z,
-      //    q2x,  q2y,   q2z,
-      //   -q2x, -q2y,  -q2z
-      // };
       Q4[0] =  q1x; Q4[1]  =    0; Q4[2]  =   q1z;
       Q4[3] = -q1x; Q4[4]  =    0; Q4[5]  = k-q1z;
       Q4[6] =  q2x; Q4[7]  =  q2y; Q4[8]  =   q2z;
@@ -197,12 +184,6 @@ __host__ __device__ double integrand_2loop(
     }
     //--------------------------------------------------------------------------
     if (kpq1 - q1 > 0) {
-      // double Q4[12] = {
-      //   -q1x,    0,  -q1z,
-      //    q1x,    0, k+q1z,
-      //    q2x,  q2y,   q2z,
-      //   -q2x, -q2y,  -q2z
-      // };
       Q4[0] = -q1x; Q4[1]  =    0; Q4[2]  =  -q1z;
       Q4[3] =  q1x; Q4[4]  =    0; Q4[5]  = k+q1z;
       Q4[6] =  q2x; Q4[7]  =  q2y; Q4[8]  =   q2z;
@@ -217,12 +198,6 @@ __host__ __device__ double integrand_2loop(
     }
     //--------------------------------------------------------------------------
     if (kmq2 - q2 > 0) {
-      // double Q4[12] = {
-      //    q2x,  q2y,   q2z,
-      //   -q2x, -q2y, k-q2z,
-      //    q1x,    0,   q1z,
-      //   -q1x,    0,  -q1z
-      // };
       Q4[0] =  q2x; Q4[1]  =  q2y; Q4[2]  =   q2z;
       Q4[3] = -q2x; Q4[4]  = -q2y; Q4[5]  = k-q2z;
       Q4[6] =  q1x; Q4[7]  =    0; Q4[8]  =   q1z;
@@ -237,12 +212,6 @@ __host__ __device__ double integrand_2loop(
     }
     //--------------------------------------------------------------------------
     if (kpq2 - q2 > 0) {
-      // double Q4[12] = {
-      //   -q2x, -q2y,  -q2z,
-      //    q2x,  q2y, k+q2z,
-      //    q1x,    0,   q1z,
-      //   -q1x,    0,  -q1z
-      // };
       Q4[0] = -q2x; Q4[1]  = -q2y; Q4[2]  =  -q2z;
       Q4[3] =  q2x; Q4[4]  =  q2y; Q4[5]  = k+q2z;
       Q4[6] =  q1x; Q4[7]  =    0; Q4[8]  =   q1z;
@@ -275,11 +244,6 @@ __host__ __device__ double integrand_2loop(
 
     //--------------------------------------------------------------------------
     if (kmq1mq2 - q2 > 0) {
-      // double Q3[9] = {
-      //   q1x,        0,       q1z,
-      //       q2x,  q2y,   q2z,
-      //  -q1x-q2x, -q2y, k-q2z-q1z
-      // };
       Q3[0] =  q1x;     Q3[1] =    0; Q3[2] =   q1z;
       Q3[3] =      q2x; Q3[4] =  q2y; Q3[5] =       q2z;
       Q3[6] = -q1x-q2x; Q3[7] = -q2y; Q3[8] = k-q1z-q2z;
@@ -289,15 +253,9 @@ __host__ __device__ double integrand_2loop(
       logp_x = lin_interp(data, log(kmq1mq2));
 
       res += 9.0 * K3.x*K3.x * exp(logp_x + logp_q1 + logp_q2); //p_q1*p_q2*p_kmq1mq2;
-      //printf("Here 4.2\n");
     }
     //--------------------------------------------------------------------------
     if (kpq1mq2 - q2 > 0) {
-      // double Q3[9] = {
-      //  -q1x,        0,      -q1z,
-      //       q2x,  q2y,   q2z,
-      //   q1x-q2x, -q2y, k-q2z+q1z
-      // };
       Q3[0] = -q1x;     Q3[1] =    0; Q3[2] =  -q1z;
       Q3[3] =      q2x; Q3[4] =  q2y; Q3[5] =       q2z;
       Q3[6] =  q1x-q2x; Q3[7] = -q2y; Q3[8] = k+q1z-q2z;
@@ -307,15 +265,9 @@ __host__ __device__ double integrand_2loop(
       logp_x = lin_interp(data, log(kpq1mq2));
 
       res += 9.0 * K3.x*K3.x * exp(logp_x + logp_q1 + logp_q2); //p_q1*p_q2*p_kpq1mq2;
-      //printf("Here 4.3\n");
     }
     //--------------------------------------------------------------------------
     if (kmq1pq2 - q2 > 0) {
-      // double Q3[9] = {
-      //   q1x,        0,       q1z,
-      //      -q2x, -q2y,  -q2z,
-      //  -q1x+q2x,  q2y, k+q2z-q1z
-      // };
       Q3[0] =  q1x;     Q3[1] =    0; Q3[2] =   q1z;
       Q3[3] =     -q2x; Q3[4] = -q2y; Q3[5] =      -q2z;
       Q3[6] = -q1x+q2x; Q3[7] =  q2y; Q3[8] = k-q1z+q2z;
@@ -325,15 +277,9 @@ __host__ __device__ double integrand_2loop(
       logp_x = lin_interp(data, log(kmq1pq2));
 
       res += 9.0 * K3.x*K3.x * exp(logp_x + logp_q1 + logp_q2); //p_q1*p_q2*p_kmq1pq2;
-      //printf("Here 4.4\n");
     }
     //--------------------------------------------------------------------------
     if (kpq1pq2 - q2 > 0) {
-      // double Q3[9] = {
-      //  -q1x,        0,      -q1z,
-      //      -q2x, -q2y,  -q2z,
-      //   q1x+q2x,  q2y, k+q2z+q1z
-      // };
       Q3[0] = -q1x;     Q3[1] =    0; Q3[2] =  -q1z;
       Q3[3] =     -q2x; Q3[4] = -q2y; Q3[5] =      -q2z;
       Q3[6] =  q1x+q2x; Q3[7] =  q2y; Q3[8] = k+q1z+q2z;
@@ -343,11 +289,70 @@ __host__ __device__ double integrand_2loop(
       logp_x = lin_interp(data, log(kpq1pq2));
 
       res += 9.0 * K3.x*K3.x * exp(logp_x + logp_q1 + logp_q2); //p_q1*p_q2*p_kpq1pq2;
-      //printf("Here 4.5\n");
     }
-    //printf("Here 5\n");
   }
-  //printf("%f, %f, %f\n",fourier_factor, jac, res);
   return fourier_factor*jac*res;
+}
+
+/*------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--- Quadratic counterterm integrand ------------------------------------------*/
+
+__host__ __device__ double integrand_quad(
+  double integration_vars[], 
+  size_t dim, 
+  void * userdata
+) {
+  // read the static integration information (k-mode, cutoff, etc)
+  struct int_data * data = (struct int_data *)userdata;
+
+  double k = exp(data->logk_eval);
+
+  // read the integration variables and construct the vectors
+  double q = exp(integration_vars[0]);
+  double qtheta1 = integration_vars[1];
+  
+  // jacobian for spherical coords
+  const double fourier_factor = 1/pow(2*M_PI,3);
+  double jac = 2.0 * M_PI * q*q*q * sin(qtheta1); 
+
+  // compute dot products
+  double kmq = sqrt(k*k + q*q - 2.0*k*q*cos(qtheta1));
+  double kpq = sqrt(k*k + q*q + 2.0*k*q*cos(qtheta1));
+
+  // compute the SPT kernels;
+  double Q2_1[6] = {
+    -q*sin(qtheta1), 0, k-q*cos(qtheta1), 
+     q*sin(qtheta1), 0,   q*cos(qtheta1)
+  };
+  double Q2_2[6] = {
+    q*sin(qtheta1), 0, k+q*cos(qtheta1), 
+   -q*sin(qtheta1), 0,  -q*cos(qtheta1)
+  };
+
+  // get the interpolated power spectrum values we need
+  double P_q   = exp(lin_interp(data, log(q)));
+  double P_kmq = 0.0;
+  double P_kpq = 0.0;
+
+
+  // compute the kernels in IR safe
+  double2 K2_1 = make_double2(0.0, 0.0);
+  double2 K2_2 = make_double2(0.0, 0.0);
+
+  const int idxs2[2] = {0,1};
+
+  if ( (kmq - q) > 0 ) {
+    K2_1 = spt_kernels_cuda(2, Q2_1, idxs2, data->kernel_data);\
+    P_kmq = exp(lin_interp(data, log(kmq)));
+  }
+  if ( (kpq - q) > 0 ) {
+    K2_2 = spt_kernels_cuda(2, Q2_2, idxs2, data->kernel_data);
+    P_kpq = exp(lin_interp(data, log(kpq)));
+  }
+
+  return fourier_factor*jac* k*k * // Note-> The k^2 is to ensure we get good accuracy, but I remove it later!
+    (   2.0*K2_1.x * K2_1.x * P_q * P_kmq
+      + 2.0*K2_2.x * K2_2.x * P_q * P_kpq);
 }
 

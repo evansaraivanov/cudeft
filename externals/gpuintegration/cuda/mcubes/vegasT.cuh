@@ -686,23 +686,23 @@ namespace cuda_mcubes {
 
     // ES Adding cuda stream support
 
-    // d   = (double*)malloc(sizeof(double) * (ndmx_p1) * (mxdim_p1)); // contributions
-    // dt  = (double*)malloc(sizeof(double) * (mxdim_p1));          // for cpu-only
-    // dx  = (double*)malloc(sizeof(double) * (mxdim_p1)); // length of integ-space at each dim
-    // r   = (double*)malloc(sizeof(double) * (ndmx_p1));
-    // x   = (double*)malloc(sizeof(double) * (mxdim_p1));
-    // xi  = (double*)malloc(sizeof(double) * (mxdim_p1) * (ndmx_p1)); // right bin coord
-    // xin = (double*)malloc(sizeof(double) * (ndmx_p1));
-    // ia  = (int*)malloc(sizeof(int) * (mxdim_p1));
+    d   = (double*)malloc(sizeof(double) * (ndmx_p1) * (mxdim_p1)); // contributions
+    dt  = (double*)malloc(sizeof(double) * (mxdim_p1));          // for cpu-only
+    dx  = (double*)malloc(sizeof(double) * (mxdim_p1)); // length of integ-space at each dim
+    r   = (double*)malloc(sizeof(double) * (ndmx_p1));
+    x   = (double*)malloc(sizeof(double) * (mxdim_p1));
+    xi  = (double*)malloc(sizeof(double) * (mxdim_p1) * (ndmx_p1)); // right bin coord
+    xin = (double*)malloc(sizeof(double) * (ndmx_p1));
+    ia  = (int*)malloc(sizeof(int) * (mxdim_p1));
 
-    cudaMallocHost((void**)&d,   sizeof(double) * (ndmx_p1) * (mxdim_p1)); // contributions
-    cudaMallocHost((void**)&dt,  sizeof(double) * (mxdim_p1));          // for cpu-only
-    cudaMallocHost((void**)&dx,  sizeof(double) * (mxdim_p1)); // length of integ-space at each dim
-    cudaMallocHost((void**)&r,   sizeof(double) * (ndmx_p1));
-    cudaMallocHost((void**)&x,   sizeof(double) * (mxdim_p1));
-    cudaMallocHost((void**)&xi,  sizeof(double) * (mxdim_p1) * (ndmx_p1)); // right bin coord
-    cudaMallocHost((void**)&xin, sizeof(double) * (ndmx_p1));
-    cudaMallocHost((void**)&ia,  sizeof(int) * (mxdim_p1));
+    // cudaMallocHost((void**)&d,   sizeof(double) * (ndmx_p1) * (mxdim_p1)); // contributions
+    // cudaMallocHost((void**)&dt,  sizeof(double) * (mxdim_p1));          // for cpu-only
+    // cudaMallocHost((void**)&dx,  sizeof(double) * (mxdim_p1)); // length of integ-space at each dim
+    // cudaMallocHost((void**)&r,   sizeof(double) * (ndmx_p1));
+    // cudaMallocHost((void**)&x,   sizeof(double) * (mxdim_p1));
+    // cudaMallocHost((void**)&xi,  sizeof(double) * (mxdim_p1) * (ndmx_p1)); // right bin coord
+    // cudaMallocHost((void**)&xin, sizeof(double) * (ndmx_p1));
+    // cudaMallocHost((void**)&ia,  sizeof(int) * (mxdim_p1));
 
     // code works only  for (2 * ng - NDMX) >= 0)
 
@@ -999,23 +999,23 @@ namespace cuda_mcubes {
     } // end of iterations
 
     // ES Adding cuda stream support
-    // free(d);
-    // free(dt);
-    // free(dx);
-    // free(ia);
-    // free(x);
-    // free(xi);
-    // free(xin);
-    // free(r);
+    free(d);
+    free(dt);
+    free(dx);
+    free(ia);
+    free(x);
+    free(xi);
+    free(xin);
+    free(r);
 
-    cudaFreeHost(d);
-    cudaFreeHost(dt);
-    cudaFreeHost(dx);
-    cudaFreeHost(ia);
-    cudaFreeHost(x);
-    cudaFreeHost(xi);
-    cudaFreeHost(xin);
-    cudaFreeHost(r);
+    // cudaFreeHost(d);
+    // cudaFreeHost(dt);
+    // cudaFreeHost(dx);
+    // cudaFreeHost(ia);
+    // cudaFreeHost(x);
+    // cudaFreeHost(xi);
+    // cudaFreeHost(xin);
+    // cudaFreeHost(r);
 
     //d_integrand->~IntegT();
     cudaFreeAsync(d_dev, stream);

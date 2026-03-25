@@ -88,13 +88,13 @@ spt_data* spt_init() {
   /* Creates constants in memory */
 
   /* create cuda managed spt_data */
-  spt_data* data;
-  cudaMallocManaged(&data, sizeof(spt_data));
+  spt_data data;
+  //cudaMallocManaged(&data, sizeof(spt_data));
 
   // starting with green fcn ---------------------------------------------------
   //double* G = new double[4*(MAX_ORDER+1)];
-  double* G;
-  cudaMallocManaged(&G, 4*(MAX_ORDER+1)*sizeof(double));
+  double G[4*(MAX_ORDER+1)];
+  // cudaMallocManaged(&G, 4*(MAX_ORDER+1)*sizeof(double));
 
   for (int i=0; i<2*MAX_ORDER; i++) {G[i] = 0.0;}
   for (int i=2; i<=MAX_ORDER; i++) {
@@ -106,8 +106,8 @@ spt_data* spt_init() {
 
   // Permutation info //
   //int* n_perms = new int[ROWS*COLS];
-  int* n_perms;
-  cudaMallocManaged(&n_perms, ROWS*COLS*sizeof(int));
+  int n_perms[ROWS*COLS];
+  //cudaMallocManaged(&n_perms, ROWS*COLS*sizeof(int));
 
   for (int i=0; i<ROWS*COLS; i++) {n_perms[i] = 0.0;}
   for (int N=2; N<ROWS; N++) {
@@ -124,8 +124,8 @@ spt_data* spt_init() {
   }
 
   //int* offsets = new int[ROWS*COLS];
-  int* offsets;
-  cudaMallocManaged(&offsets, ROWS*COLS*sizeof(int));
+  int offsets[ROWS*COLS];
+  //cudaMallocManaged(&offsets, ROWS*COLS*sizeof(int));
 
   int offset = 0;
   for (int N=0; N<ROWS; N++) {
@@ -144,9 +144,10 @@ spt_data* spt_init() {
     }
   }
 
-  // int* perm_table = (int*)malloc(count*sizeof(int));
-  int* perm_table;
-  cudaMallocManaged(&perm_table, count * sizeof(int));
+  // permutations table
+  int* perm_table = (int*)malloc(count*sizeof(int));
+  // int* perm_table;
+  // cudaMallocManaged(&perm_table, count * sizeof(int));
 
   for (int i=2; i<ROWS; i++) {
     for (int j=1; j<=i/2; j++) {
@@ -168,16 +169,61 @@ spt_data* spt_init() {
       free(permutations);
     }
   }
+  data.G = G;
+  data.perm_table=perm_table;
+  data.perm_counts=n_perms;
+  data.perm_offsets=offsets;
+  data.max_order=MAX_ORDER;
+  data.ROWS=ROWS;
+  data.COLS=COLS;
 
-  data->G = G;
-  data->perm_table=perm_table;
-  data->perm_counts=n_perms;
-  data->perm_offsets=offsets;
-  data->max_order=MAX_ORDER;
-  data->ROWS=ROWS;
-  data->COLS=COLS;
+  // Now we create the GPU copy:
+  spt_data* d_data;
+  double* d_G;
+  int* d_n_perms;
+  int* d_offsets;
+  int* d_perm_table;
 
-  return data;
+  cudaMalloc(&d_data, sizeof(spt_data));
+  cudaMalloc(&d_G, 4*(MAX_ORDER+1)*sizeof(double));
+  cudaMalloc(&d_n_perms, ROWS*COLS*sizeof(int));
+  cudaMalloc(&d_offsets, ROWS*COLS*sizeof(int));
+  cudaMalloc(&d_perm_table, count*sizeof(int));
+
+  cudaMemcpy(d_G, data.G, 4*(MAX_ORDER+1)*sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_n_perms, data.perm_counts, ROWS*COLS*sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_offsets, data.perm_offsets, ROWS*COLS*sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_perm_table, data.perm_table, count*sizeof(int), cudaMemcpyHostToDevice);
+
+  // replace data with device pointers
+  data.G = d_G;
+  data.perm_counts = d_n_perms;
+  data.perm_offsets = d_offsets;
+  data.perm_table = d_perm_table;
+
+  // copy full struct
+  cudaMemcpy(d_data, &data, sizeof(spt_data), cudaMemcpyHostToDevice);
+
+  // free the standard malloc 
+  free(perm_table);
+
+  return d_data;
+}
+
+void spt_free(spt_data* d_data) {
+  // easy to call function to free the malloc'd data inside sdata.
+  spt_data h_data;
+
+  cudaMemcpy(&h_data, d_data, sizeof(spt_data), cudaMemcpyDeviceToHost);
+
+  cudaFree((void*)h_data.G);
+  cudaFree((void*)h_data.perm_table);
+  cudaFree((void*)h_data.perm_counts);
+  cudaFree((void*)h_data.perm_offsets);
+
+  cudaFree(d_data);
+
+  return;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -246,8 +292,8 @@ __host__ __device__ double2 spt_kernels_cuda(
       k1 = make_double3(0.0, 0.0, 0.0);
       k2 = make_double3(0.0, 0.0, 0.0);
 
-      int active_idxs_1[5];
-      int active_idxs_2[5];
+      int active_idxs_1[MAX_ORDER];
+      int active_idxs_2[MAX_ORDER];
       
       for (int j=0; j<i; j++) {
         active_idxs_1[j] = active_idxs[permutations[order*n+j]];

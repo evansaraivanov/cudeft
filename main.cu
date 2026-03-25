@@ -33,8 +33,10 @@ int main() {
   // allocate results array
   double results[evalsize];
 
+  spt_data* sdata = spt_init();
+
   /* now integrate */
-  StartTime = std::chrono::system_clock::now();
+  auto StartTime = std::chrono::system_clock::now();
 
   #pragma omp parallel for schedule(dynamic) // load balancing when integrals don't converge at same rate
   for(int j=0; j<evalsize; j++) {
@@ -60,7 +62,6 @@ int main() {
       slopes[i] = (logp[i+1] - logp[i])/step_size;
     }
 
-    spt_data* sdata = spt_init();
     int_data* idata;
     cudaMallocManaged(&idata, sizeof(int_data));
     

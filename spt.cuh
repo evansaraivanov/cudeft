@@ -12,6 +12,7 @@ struct spt_data {
 };
 
 spt_data* spt_init();
+void spt_free(spt_data* d_data);
 
 __host__ __device__ double2 spt_kernels_cuda(
 	int order, const double* Q, const int* active_idxs, spt_data* sdata);

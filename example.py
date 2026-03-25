@@ -13,8 +13,8 @@ for i in range(size):
 logk_eval = np.log(np.array([0.01, 0.1, 1.0, 10.0]))
 
 result_mm1 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 1)
-result_mm1 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 1)
-result_mm1 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 1)
+result_mm1 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 1) # this will become an IR-resummation term later
+result_mm1 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 1) # this will become the quad counterterm later
 result_mm2 = pycudeft.p_mm(logk_eval, len(logk_eval), logp, logk, size, 50.0, 2)
 
 print('RESULT = ')

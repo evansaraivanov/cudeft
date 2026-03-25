@@ -3,7 +3,7 @@ CUDA implementation of the EFT of large scale structure.
 
 This requires conda and an Nvidia GPU.
 
-I have provided in the external folder a slightly modified version of m-CUBES (see arXiv:2202.01753) which I have independently modified to allow for parallel integrations over $k$-modes should your GPU have enough SM cores to launch them.
+I have provided in the externals folder a slightly modified version of m-CUBES (see arXiv:2202.01753) which I have independently modified to allow for parallel integrations over $k$-modes should your GPU have enough SM cores to launch them.
 
 ## Download and Install
 

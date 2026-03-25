@@ -1,0 +1,15 @@
+*~
+*.DS_Store
+*.dylib
+*.so
+*.a
+*.o
+build/
+*.pdf
+\#*
+*.yaml
+.ipynb_checkpoints
+*.csv
+*.out
+*build*
+*rep

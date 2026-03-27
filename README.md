@@ -11,7 +11,7 @@ To download and install cudeft, run the following commands:
 ```
 git clone git@github.com:evansaraivanov/cudeft.git
 cd cudeft
-conda create -n (your env name) --file cudeft_env.yaml
+conda env create -n (your env name) --file cudeft_env.yaml
 conda activate (your env name)
 mkdir build
 cd build
